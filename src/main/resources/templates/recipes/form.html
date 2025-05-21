@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/main :: html(content=~{::content})}">
+<div th:fragment="content">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 th:text="${recipe.id} ? 'Modifier la recette' : 'Créer une nouvelle recette'">Recette</h1>
+            
+            <form th:action="${recipe.id} ? @{/recipes/{id}/edit(id=${recipe.id})} : @{/recipes/create}" 
+                  th:object="${recipe}" 
+                  method="post" 
+                  enctype="multipart/form-data">
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label">Titre</label>
+                    <input type="text" class="form-control" id="title" th:field="*{title}" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" th:field="*{description}" rows="3" required></textarea>
+                    <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="prepTime" class="form-label">Temps de préparation (minutes)</label>
+                        <input type="number" class="form-control" id="prepTime" th:field="*{prepTime}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cookTime" class="form-label">Temps de cuisson (minutes)</label>
+                        <input type="number" class="form-control" id="cookTime" th:field="*{cookTime}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="difficulty" class="form-label">Difficulté</label>
+                        <select class="form-select" id="difficulty" th:field="*{difficulty}" required>
+                            <option value="">Sélectionner</option>
+                            <option th:each="diff : ${difficulties}" th:value="${diff}" th:text="${diff}">FACILE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="categories" class="form-label">Catégories</label>
+                    <select class="form-select" id="categories" th:field="*{categories}" multiple required>
+                        <option th:each="category : ${allCategories}" 
+                                th:value="${category.id}" 
+                                th:text="${category.name}">Catégorie</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ingredients" class="form-label">Ingrédients</label>
+                    <div id="ingredientsList">
+                        <div class="input-group mb-2" th:each="ingredient, stat : *{ingredients}">
+                            <input type="text" class="form-control" th:field="*{ingredients[__${stat.index}__]}" required>
+                            <button type="button" class="btn btn-danger remove-ingredient">Supprimer</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="addIngredient">Ajouter un ingrédient</button>
+                </div>
+
+                <div class="mb-3">
+                    <label for="instructions" class="form-label">Instructions</label>
+                    <textarea class="form-control" id="instructions" th:field="*{instructions}" rows="10" required></textarea>
+                    <div class="text-danger" th:if="${#fields.hasErrors('instructions')}" th:errors="*{instructions}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image" class="form-label">Image</label>
+                    <input type="file" class="form-control" id="image" name="imageFile" accept="image/*">
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <a th:href="@{/recipes}" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</html>

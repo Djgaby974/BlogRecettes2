@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+
+</div>
+    <div class="comments-section mt-5">
+        <h3>Commentaires (<span th:text="${recipe.comments.size()}">0</span>)</h3>
+
+        <!-- Formulaire de commentaire -->
+        <div class="card mb-4" sec:authorize="isAuthenticated()">
+            <div class="card-body">
+                <form th:action="@{/recipes/{id}/comments(id=${recipe.id})}" method="post" th:object="${newComment}">
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Votre commentaire</label>
+                        <textarea class="form-control" id="content" th:field="*{content}" rows="3" required></textarea>
+                        <div class="text-danger" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Publier</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Liste des commentaires -->
+        <div class="comments-list">
+            <div th:each="comment : ${recipe.comments}" class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center">
+                            <img th:if="${comment.author.avatar}" 
+                                 th:src="${comment.author.avatar}" 
+                                 class="rounded-circle me-2" 
+                                 alt="Avatar" 
+                                 style="width: 40px; height: 40px;">
+                            <div>
+                                <h6 class="mb-0" th:text="${comment.author.username}">Utilisateur</h6>
+                                <small class="text-muted" 
+                                       th:text="${#temporals.format(comment.createdAt, 'dd MMMM yyyy à HH:mm')}">
+                                    Date
+                                </small>
+                            </div>
+                        </div>
+                        <div th:if="${#authentication.name == comment.author.username}">
+                            <button class="btn btn-sm btn-warning me-1" 
+                                    th:attr="onclick='editComment(' + ${comment.id} + ')'">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form th:action="@{/comments/{id}/delete(id=${comment.id})}" 
+                                  method="post" 
+                                  class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger delete-confirm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <p class="comment-content" th:id="'comment-content-' + ${comment.id}" th:text="${comment.content}">
+                        Contenu du commentaire
+                    </p>
+                    <form th:id="'edit-form-' + ${comment.id}" 
+                          th:action="@{/comments/{id}/edit(id=${comment.id})}" 
+                          method="post" 
+                          style="display: none;">
+                        <div class="mb-3">
+                            <textarea class="form-control" 
+                                      th:id="'edit-content-' + ${comment.id}" 
+                                      name="content" 
+                                      rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">Enregistrer</button>
+                        <button type="button" class="btn btn-sm btn-secondary" 
+                                th:attr="onclick='cancelEdit(' + ${comment.id} + ')'">
+                            Annuler
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

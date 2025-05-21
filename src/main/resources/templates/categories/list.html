@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/main :: html(content=~{::content})}">
+<div th:fragment="content">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Gestion des Catégories</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                <i class="fas fa-plus"></i> Nouvelle Catégorie
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Description</th>
+                                    <th>Nombre de recettes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="category : ${categories}">
+                                    <td th:text="${category.name}">Nom de la catégorie</td>
+                                    <td th:text="${category.description}">Description</td>
+                                    <td th:text="${category.recipes.size()}">0</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-warning"
+                                                th:data-id="${category.id}"
+                                                th:data-name="${category.name}"
+                                                th:data-description="${category.description}"
+                                                onclick="prepareEdit(this)"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editCategoryModal">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <form th:action="@{/categories/{id}/delete(id=${category.id})}" 
+                                              method="post" 
+                                              class="d-inline">
+                                            <button type="submit" 
+                                                    class="btn btn-sm btn-danger delete-confirm"
+                                                    th:disabled="${not #lists.isEmpty(category.recipes)}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ajout Catégorie -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form th:action="@{/categories/create}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nouvelle Catégorie</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nom</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Créer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Modification Catégorie -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editCategoryForm" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modifier la Catégorie</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editCategoryId" name="id">
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">Nom</label>
+                            <input type="text" class="form-control" id="editName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+    function prepareEdit(button) {
+        const id = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        const description = button.getAttribute('data-description');
+        
+        document.getElementById('editCategoryId').value = id;
+        document.getElementById('editName').value = name;
+        document.getElementById('editDescription').value = description;
+        document.getElementById('editCategoryForm').action = `/categories/${id}/edit`;
+    }
+    </script>
+</div>
+</html>

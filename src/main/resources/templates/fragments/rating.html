@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div th:fragment="rating">
+    <div class="rating-section mb-4">
+        <h4>Évaluation</h4>
+        <div class="current-rating text-center mb-3">
+            <div class="h2">
+                <span th:text="${#numbers.formatDecimal(recipe.averageRating, 1, 1)}">4.5</span>
+                <small class="text-muted">/ 5</small>
+            </div>
+            <div class="stars">
+                <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                    <i class="fas fa-star" 
+                       th:classappend="${i <= recipe.averageRating} ? 'text-warning' : 'text-muted'"></i>
+                </th:block>
+            </div>
+            <small class="text-muted">
+                (<span th:text="${recipe.ratings.size()}">0</span> évaluations)
+            </small>
+        </div>
+
+        <!-- Formulaire d'évaluation -->
+        <div class="rate-recipe" sec:authorize="isAuthenticated()">
+            <form th:action="@{/recipes/{id}/rate(id=${recipe.id})}" 
+                  method="post" 
+                  class="text-center"
+                  th:if="${!userHasRated}">
+                <div class="rating-input mb-3">
+                    <input type="radio" id="star5" name="rating" value="5" />
+                    <label for="star5"><i class="far fa-star"></i></label>
+                    
+                    <input type="radio" id="star4" name="rating" value="4" />
+                    <label for="star4"><i class="far fa-star"></i></label>
+                    
+                    <input type="radio" id="star3" name="rating" value="3" />
+                    <label for="star3"><i class="far fa-star"></i></label>
+                    
+                    <input type="radio" id="star2" name="rating" value="2" />
+                    <label for="star2"><i class="far fa-star"></i></label>
+                    
+                    <input type="radio" id="star1" name="rating" value="1" />
+                    <label for="star1"><i class="far fa-star"></i></label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Évaluer</button>
+            </form>
+            <div class="alert alert-info" th:if="${userHasRated}">
+                Vous avez déjà évalué cette recette !
+            </div>
+        </div>
+
+        <!-- Distribution des évaluations -->
+        <div class="rating-distribution mt-4">
+            <div th:each="i : ${#numbers.sequence(5, 1)}" class="rating-bar mb-2">
+                <div class="d-flex align-items-center">
+                    <span class="me-2" th:text="${i}">5</span>
+                    <i class="fas fa-star text-warning me-2"></i>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar bg-warning" 
+                             th:style="'width: ' + ${recipe.getRatingPercentage(i)} + '%'"
+                             th:attr="aria-valuenow=${recipe.getRatingPercentage(i)}"
+                             role="progressbar" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                    <span class="ms-2 text-muted" 
+                          th:text="${recipe.getRatingCount(i)} + ' votes'">
+                        0 votes
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

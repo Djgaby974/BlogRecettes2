@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/main :: html(content=~{::content})}">
+<div th:fragment="content">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Toutes les Recettes</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a th:href="@{/recipes/create}" class="btn btn-primary" sec:authorize="isAuthenticated()">
+                <i class="fas fa-plus"></i> Nouvelle Recette
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/recipes}" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="search" th:value="${param.search}" placeholder="Rechercher...">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="category">
+                        <option value="">Toutes les catégories</option>
+                        <option th:each="cat : ${categories}" 
+                                th:value="${cat.id}" 
+                                th:text="${cat.name}"
+                                th:selected="${param.category == cat.id}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="difficulty">
+                        <option value="">Toutes les difficultés</option>
+                        <option th:each="diff : ${difficulties}" 
+                                th:value="${diff}"
+                                th:text="${diff}"
+                                th:selected="${param.difficulty == diff}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des recettes -->
+    <div class="row">
+        <div th:each="recipe : ${recipes}" class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <img th:if="${recipe.image}" th:src="${recipe.image}" class="card-img-top" alt="Image de la recette">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${recipe.title}">Titre de la recette</h5>
+                    <p class="card-text" th:text="${#strings.abbreviate(recipe.description,150)}">Description</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Par <span th:text="${recipe.author.username}">auteur</span>
+                            le <span th:text="${#temporals.format(recipe.createdAt, 'dd/MM/yyyy')}">date</span>
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-info" th:text="${recipe.difficulty}">Difficulté</span>
+                        <a th:href="@{/recipes/{id}(id=${recipe.id})}" class="btn btn-sm btn-primary">Voir la recette</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav th:if="${recipes.totalPages > 1}" aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${recipes.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/recipes(page=${recipes.number - 1}, size=${recipes.size}, search=${param.search}, category=${param.category}, difficulty=${param.difficulty})}">Précédent</a>
+            </li>
+            <li class="page-item" th:each="pageNumber : ${#numbers.sequence(0, recipes.totalPages - 1)}"
+                th:classappend="${pageNumber == recipes.number} ? 'active'">
+                <a class="page-link" th:href="@{/recipes(page=${pageNumber}, size=${recipes.size}, search=${param.search}, category=${param.category}, difficulty=${param.difficulty})}"
+                   th:text="${pageNumber + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${recipes.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/recipes(page=${recipes.number + 1}, size=${recipes.size}, search=${param.search}, category=${param.category}, difficulty=${param.difficulty})}">Suivant</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</html>

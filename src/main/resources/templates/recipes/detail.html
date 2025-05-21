@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/main :: html(content=~{::content})}">
+<div th:fragment="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <img th:if="${recipe.image}" th:src="${recipe.image}" class="card-img-top" alt="Image de la recette">
+                    <div class="card-body">
+                        <h1 class="card-title" th:text="${recipe.title}">Titre de la recette</h1>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="badge bg-info" th:text="${recipe.difficulty}">Difficulté</span>
+                                <span class="ms-2">
+                                    <i class="fas fa-clock"></i> Préparation : <span th:text="${recipe.prepTime}">30</span> min
+                                </span>
+                                <span class="ms-2">
+                                    <i class="fas fa-utensils"></i> Cuisson : <span th:text="${recipe.cookTime}">45</span> min
+                                </span>
+                            </div>
+                            <div th:if="${isAuthor}">
+                                <a th:href="@{/recipes/{id}/edit(id=${recipe.id})}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </div>
+                        </div>
+
+                        <p class="lead" th:text="${recipe.description}">Description de la recette</p>
+
+                        <h3>Ingrédients</h3>
+                        <ul class="list-group mb-4">
+                            <li th:each="ingredient : ${recipe.ingredients}" 
+                                class="list-group-item" 
+                                th:text="${ingredient}">Ingrédient</li>
+                        </ul>
+
+                        <h3>Instructions</h3>
+                        <div class="instructions" th:utext="${recipe.instructions}">
+                            Instructions de la recette
+                        </div>
+
+                        <div class="mt-4">
+                            <small class="text-muted">
+                                Publié par <span th:text="${recipe.author.username}">auteur</span>
+                                le <span th:text="${#temporals.format(recipe.createdAt, 'dd MMMM yyyy')}">date</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Êtes-vous sûr de vouloir supprimer cette recette ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form th:action="@{/recipes/{id}/delete(id=${recipe.id})}" method="post">
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/main :: html(content=~{::content})}">
+<div th:fragment="content">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title">Mon Profil</h1>
+                    
+                    <div th:if="${message}" class="alert" th:classappend="${messageType == 'success'} ? 'alert-success' : 'alert-danger'" role="alert">
+                        <span th:text="${message}">Message</span>
+                    </div>
+
+                    <form th:action="@{/profile/update}" th:object="${profileForm}" method="post" enctype="multipart/form-data">
+                        <div class="row mb-3">
+                            <div class="col-md-4 text-center">
+                                <img th:if="${user.avatar}" th:src="${user.avatar}" class="img-fluid rounded-circle mb-3" alt="Avatar">
+                                <img th:unless="${user.avatar}" src="/images/default-avatar.png" class="img-fluid rounded-circle mb-3" alt="Avatar par défaut">
+                                <div class="mb-3">
+                                    <label for="avatar" class="form-label">Changer l'avatar</label>
+                                    <input type="file" class="form-control" id="avatar" name="avatarFile" accept="image/*">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Nom d'utilisateur</label>
+                                    <input type="text" class="form-control" id="username" th:field="*{username}" required>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="bio" class="form-label">Bio</label>
+                                    <textarea class="form-control" id="bio" th:field="*{bio}" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Mettre à jour le profil</button>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <h3>Changer le mot de passe</h3>
+                    <form th:action="@{/profile/password}" method="post">
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Mot de passe actuel</label>
+                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Nouveau mot de passe</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirmNewPassword" class="form-label">Confirmer le nouveau mot de passe</label>
+                            <input type="password" class="form-control" id="confirmNewPassword" name="confirmNewPassword" required>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning">Changer le mot de passe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>
