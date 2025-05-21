@@ -21,7 +21,7 @@
                     </div>
 
                     <form th:action="@{/api/users/login}" method="post">
-                    <div class="mb-3">
+                        <div class="mb-3">
                             <label for="username" class="form-label">Nom d'utilisateur</label>
                             <input type="text" class="form-control" id="username" name="username" required>
                         </div>
@@ -35,6 +35,10 @@
                             <button type="submit" class="btn btn-primary">Se connecter</button>
                         </div>
                     </form>
+
+                    <div class="text-center mt-3">
+                        <p>Pas encore de compte ? <a th:href="@{/api/users/register}" class="text-primary">S'inscrire</a></p>
+                    </div>
                 </div>
             </div>
         </div>
