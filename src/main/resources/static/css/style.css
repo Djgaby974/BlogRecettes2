@@ -46,6 +46,26 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
 }
 
+/* Bouton de bascule du mode sombre */
+.dark-mode-toggle {
+    font-size: 1.1rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+    color: var(--accent-color);
+}
+
+.dark-mode-toggle i {
+    transition: transform 0.3s ease;
+}
+
+.dark-mode-toggle:hover i {
+    transform: rotate(20deg);
+}
+
 /* Boutons personnalisés */
 .btn-recipe {
     background-color: var(--accent-color);
