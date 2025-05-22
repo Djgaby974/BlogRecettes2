@@ -47,7 +47,27 @@ public class CommentService {
     }
 
     public Page<Comment> getRecipeComments(Long recipeId, Pageable pageable) {
-        return commentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId, pageable);
+        return commentRepository.findByRecipeIdAndParentIsNullOrderByCreatedAtDesc(recipeId, pageable);
+    }
+    
+    public Page<Comment> getTopLevelComments(Pageable pageable) {
+        return commentRepository.findByParentIsNullOrderByCreatedAtDesc(pageable);
+    }
+    
+    public Comment addReply(Long parentId, String username, String content) {
+        User user = userService.getUserByUsername(username)
+            .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+            
+        Comment parent = commentRepository.findById(parentId)
+            .orElseThrow(() -> new RuntimeException("Commentaire parent non trouvé"));
+            
+        Comment reply = new Comment();
+        reply.setUser(user);
+        reply.setRecipe(parent.getRecipe());
+        reply.setContent(content);
+        reply.setParent(parent);
+            
+        return commentRepository.save(reply);
     }
     
     public List<Comment> getCommentsByRecipeId(Long recipeId) {
