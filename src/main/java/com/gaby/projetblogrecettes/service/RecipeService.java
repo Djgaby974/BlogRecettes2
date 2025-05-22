@@ -94,7 +94,7 @@ public class RecipeService {
 
     public Page<Recipe> searchRecipes(String keyword, Long categoryId, String difficulty, boolean published, Pageable pageable) {
         Difficulty difficultyEnum = parseDifficulty(difficulty);
-        return recipeRepository.findAll(pageable);
+        return recipeRepository.searchRecipes(keyword, categoryId, difficultyEnum, pageable);
     }
 
     public Page<Recipe> getRecipesByAuthor(String username, Pageable pageable) {
