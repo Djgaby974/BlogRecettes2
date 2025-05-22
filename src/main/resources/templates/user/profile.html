@@ -11,7 +11,7 @@
                         <span th:text="${message}">Message</span>
                     </div>
 
-                    <form th:action="@{/profile/update}" th:object="${profileForm}" method="post" enctype="multipart/form-data">
+                    <form th:action="@{/api/users/profile/update}" th:object="${profileForm}" method="post" enctype="multipart/form-data">
                         <div class="row mb-3">
                             <div class="col-md-4 text-center">
                                 <img th:if="${user.avatar}" th:src="${user.avatar}" class="img-fluid rounded-circle mb-3" alt="Avatar">
@@ -50,7 +50,7 @@
                     <hr class="my-4">
 
                     <h3>Changer le mot de passe</h3>
-                    <form th:action="@{/profile/password}" method="post">
+                    <form th:action="@{/api/users/profile/password}" method="post">
                         <div class="mb-3">
                             <label for="currentPassword" class="form-label">Mot de passe actuel</label>
                             <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>

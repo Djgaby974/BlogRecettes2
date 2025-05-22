@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.String;
 
 @Entity
 @Table(name = "recipes")
@@ -47,13 +49,16 @@ public class Recipe {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @ToString.Exclude
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
+    @ToString.Exclude
     private User author;
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Comment> comments = new ArrayList<>();
 
     @CreationTimestamp

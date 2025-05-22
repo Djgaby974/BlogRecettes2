@@ -1,7 +1,8 @@
 package com.gaby.projetblogrecettes.repository;
 
-import com.gaby.projetblogrecettes.model.Category;
+import com.gaby.projetblogrecettes.model.Difficulty;
 import com.gaby.projetblogrecettes.model.Recipe;
+import com.gaby.projetblogrecettes.model.Category;
 import com.gaby.projetblogrecettes.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,35 +15,35 @@ import java.util.List;
 
 @Repository
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
-    // Recherche de recettes publiées
+
     List<Recipe> findByPublishedTrue();
-    
-    // Recherche par auteur
-    List<Recipe> findByAuthor(User author);
-    
-    // Recherche par catégorie
+
+    Page<Recipe> findByAuthor(User author, Pageable pageable);
+
     List<Recipe> findByCategory(Category category);
-    
-    // Recherche par titre contenant un mot-clé
+
     List<Recipe> findByTitleContainingIgnoreCase(String keyword);
-    
-    // Recherche avancée
-    @Query("SELECT r FROM Recipe r WHERE " +
-           "(:keyword IS NULL OR LOWER(r.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
-           "(:categoryId IS NULL OR r.category.id = :categoryId) AND " +
-           "(:difficulty IS NULL OR r.difficulty = :difficulty) AND " +
-           "r.published = :published")
+
+
+
+    @Query("""
+    SELECT r FROM Recipe r
+    WHERE (:title IS NULL OR LOWER(r.title) LIKE LOWER(CONCAT('%', :title, '%')))
+    AND (:categoryId IS NULL OR r.category.id = :categoryId)
+    AND (:difficulty IS NULL OR r.difficulty = :difficulty)
+""")
     Page<Recipe> searchRecipes(
-            @Param("keyword") String keyword,
+            @Param("title") String title,
             @Param("categoryId") Long categoryId,
-            @Param("difficulty") String difficulty,
-            @Param("published") boolean published,
+            @Param("difficulty") Difficulty difficulty,
             Pageable pageable
     );
-    
-    // Recettes les plus récentes
+
+
+
     List<Recipe> findTop10ByPublishedTrueOrderByCreatedAtDesc();
-    
-    // Recherche par temps de préparation
+
     List<Recipe> findByPrepTimeLessThanEqual(Integer maxPrepTime);
+
+
 }

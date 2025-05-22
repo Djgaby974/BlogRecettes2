@@ -5,15 +5,15 @@ import com.gaby.projetblogrecettes.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/categories")
+@Controller
+@RequestMapping("/categories")
 @Slf4j
 public class CategoryController {
     private final CategoryService categoryService;
@@ -24,22 +24,31 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
+    public String listCategories(Model model) {
         List<Category> categories = categoryService.getAllCategories();
-        return ResponseEntity.ok(categories);
+        model.addAttribute("categories", categories);
+        model.addAttribute("newCategory", new Category());
+        return "categories/list";
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Category> createCategory(@Valid @RequestBody Category category) {
-        Category newCategory = categoryService.createCategory(category);
-        return new ResponseEntity<>(newCategory, HttpStatus.CREATED);
+    public String createCategory(@Valid @ModelAttribute Category category) {
+        categoryService.createCategory(category);
+        return "redirect:/categories";
     }
 
-    @DeleteMapping("/{id}")
+    @PostMapping("/{id}/delete")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+    public String deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
+        return "redirect:/categories";
+    }
+
+    @PostMapping("/{id}/edit")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String editCategory(@PathVariable Long id, @Valid @ModelAttribute Category category) {
+        categoryService.updateCategory(id, category);
+        return "redirect:/categories";
     }
 }

@@ -50,7 +50,7 @@
     <div class="row">
         <div th:each="recipe : ${recipes}" class="col-md-6 col-lg-4 mb-4">
             <div class="card h-100">
-                <img th:if="${recipe.image}" th:src="${recipe.image}" class="card-img-top" alt="Image de la recette">
+                <img th:if="${!#lists.isEmpty(recipe.imageUrls)}" th:src="${recipe.imageUrls[0]}" class="card-img-top" alt="Image de la recette">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${recipe.title}">Titre de la recette</h5>
                     <p class="card-text" th:text="${#strings.abbreviate(recipe.description,150)}">Description</p>

@@ -41,8 +41,32 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public User updateUser(User user, String name) {
-        return userRepository.save(user);
+    public User updateUser(User userDetails, String username) {
+        User existingUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Vérifier si l'email est déjà utilisé par un autre utilisateur
+        if (!existingUser.getEmail().equals(userDetails.getEmail()) &&
+            userRepository.existsByEmail(userDetails.getEmail())) {
+            throw new RuntimeException("Email déjà utilisé");
+        }
+
+        existingUser.setEmail(userDetails.getEmail());
+        existingUser.setBio(userDetails.getBio());
+        
+        return userRepository.save(existingUser);
+    }
+
+    public void updatePassword(String username, String currentPassword, String newPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("Mot de passe actuel incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     public void deleteUser(Long userId) {

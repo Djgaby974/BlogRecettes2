@@ -15,13 +15,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.annotation.PostConstruct;
 import java.security.Principal;
 
 @Controller
 @RequestMapping("/api/users")
 @Slf4j
 public class UserController {
+    
+    @PostConstruct
+    public void init() {
+        log.info("UserController initialisé avec le chemin de base: /users");
+    }
     private final UserService userService;
     private final RecipeService recipeService;
 
@@ -31,21 +39,79 @@ public class UserController {
         this.recipeService = recipeService;
     }
 
+
+
     @GetMapping("/profile")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<User> getUserProfile(Principal principal) {
-        User user = userService.getUserByUsername(principal.getName())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
-                        "Utilisateur non trouvé"));
-        return ResponseEntity.ok(user);
+    public String getUserProfile(Model model, Principal principal) {
+        log.info("=== DÉBUT getUserProfile ===");
+        log.info("Utilisateur connecté: " + principal.getName());
+        try {
+            User user = userService.getUserByUsername(principal.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                            "Utilisateur non trouvé"));
+            log.info("Utilisateur trouvé: " + user.getUsername());
+            
+            model.addAttribute("user", user);
+            model.addAttribute("profileForm", user);
+            
+            log.info("Attributs du modèle: " + model.asMap().keySet());
+            log.info("=== FIN getUserProfile ===");
+            return "user/profile";
+        } catch (Exception e) {
+            log.error("Erreur dans getUserProfile", e);
+            throw e;
+        }
     }
 
-    @PutMapping("/profile")
+    @PostMapping("/profile/update")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<User> updateProfile(@Valid @RequestBody User userDetails, 
-                                            Principal principal) {
-        User updatedUser = userService.updateUser(userDetails, principal.getName());
-        return ResponseEntity.ok(updatedUser);
+    public String updateProfile(@Valid @ModelAttribute("profileForm") User userDetails,
+                              BindingResult result,
+                              @RequestParam(required = false) MultipartFile avatarFile,
+                              Principal principal,
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("user", userDetails);
+            return "user/profile";
+        }
+
+        try {
+            User updatedUser = userService.updateUser(userDetails, principal.getName());
+            redirectAttributes.addFlashAttribute("message", "Profil mis à jour avec succès");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("message", "Erreur lors de la mise à jour du profil");
+            redirectAttributes.addFlashAttribute("messageType", "danger");
+        }
+
+        return "redirect:/api/users/profile";
+    }
+
+    @PostMapping("/profile/password")
+    @PreAuthorize("isAuthenticated()")
+    public String updatePassword(@RequestParam String currentPassword,
+                               @RequestParam String newPassword,
+                               @RequestParam String confirmNewPassword,
+                               Principal principal,
+                               RedirectAttributes redirectAttributes) {
+        if (!newPassword.equals(confirmNewPassword)) {
+            redirectAttributes.addFlashAttribute("message", "Les mots de passe ne correspondent pas");
+            redirectAttributes.addFlashAttribute("messageType", "danger");
+            return "redirect:/api/users/profile";
+        }
+
+        try {
+            userService.updatePassword(principal.getName(), currentPassword, newPassword);
+            redirectAttributes.addFlashAttribute("message", "Mot de passe mis à jour avec succès");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("message", "Erreur lors de la mise à jour du mot de passe");
+            redirectAttributes.addFlashAttribute("messageType", "danger");
+        }
+
+        return "redirect:/api/users/profile";
     }
 
     @GetMapping("/register")

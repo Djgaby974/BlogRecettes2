@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +34,19 @@ public class User {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    private String avatar;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Recipe> recipes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Comment> comments = new ArrayList<>();
 }
