@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="fr" 
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="layout">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog de Recettes - [[${title}]]</title>
+    <title>Blog de Recettes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
@@ -15,13 +15,17 @@
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <!-- Contenu principal -->
-    <main class="container mt-4">
-        <div th:replace="${content}">
-            <!-- Le contenu sera injecté ici -->
-        </div>
-    </main>
+    <div class="container mt-4">
+        <!-- Le contenu sera injecté ici -->
+        <div th:replace="~{::content}"></div>
+    </div>
 
     <!-- Inclure le footer -->
+    <footer class="bg-light text-center text-lg-start mt-5">
+        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
+            © 2025 Blog de Recettes
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script th:src="@{/js/main.js}"></script>

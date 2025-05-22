@@ -1,9 +1,12 @@
 package com.gaby.projetblogrecettes.controller;
 
 import com.gaby.projetblogrecettes.model.Recipe;
+import com.gaby.projetblogrecettes.model.User;
 import com.gaby.projetblogrecettes.model.Difficulty;
+import com.gaby.projetblogrecettes.repository.RatingRepository;
 import com.gaby.projetblogrecettes.service.CommentService;
 import com.gaby.projetblogrecettes.service.RatingService;
+import com.gaby.projetblogrecettes.service.UserService;
 import com.gaby.projetblogrecettes.service.RecipeService;
 import com.gaby.projetblogrecettes.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,16 +36,22 @@ import java.util.List;
 public class RecipeController {
     private final RecipeService recipeService;
     private final RatingService ratingService;
+    private final RatingRepository ratingRepository;
+    private final UserService userService;
     private final CommentService commentService;
     private final CategoryService categoryService;
 
     @Autowired
     public RecipeController(RecipeService recipeService,
                           RatingService ratingService,
+                          RatingRepository ratingRepository,
+                          UserService userService,
                           CommentService commentService,
                           CategoryService categoryService) {
         this.recipeService = recipeService;
         this.ratingService = ratingService;
+        this.ratingRepository = ratingRepository;
+        this.userService = userService;
         this.commentService = commentService;
         this.categoryService = categoryService;
     }
@@ -76,14 +85,23 @@ public class RecipeController {
         if (isAuthenticated) {
             boolean isAuthor = recipe.getAuthor().getUsername().equals(principal.getName());
             model.addAttribute("isAuthor", isAuthor);
+            
+            // Vérifier si l'utilisateur a déjà noté cette recette
+            User currentUser = userService.getUserByUsername(principal.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
+            boolean hasRated = ratingRepository.findByUserAndRecipe(currentUser, recipe).isPresent();
+            model.addAttribute("hasRated", hasRated);
+        } else {
+            model.addAttribute("hasRated", false);
         }
         
         double averageRating = ratingService.getAverageRating(id);
         model.addAttribute("averageRating", averageRating);
-        model.addAttribute("ratingCount", recipe.getComments().size());
         
-        List<Comment> comments = recipe.getComments();
+        // Charger explicitement les commentaires avec leurs utilisateurs
+        List<Comment> comments = commentService.getCommentsByRecipeId(id);
         model.addAttribute("comments", comments);
+        model.addAttribute("ratingCount", comments.size());
         
         return "recipes/show";
     }
@@ -147,6 +165,24 @@ public class RecipeController {
                              Principal principal) {
         recipeService.deleteRecipe(id, principal.getName());
         return "redirect:/recipes";
+    }
+    
+    @PostMapping("/{id}/comments")
+    @PreAuthorize("isAuthenticated()")
+    public String addComment(@PathVariable Long id,
+                           @RequestParam String content,
+                           Principal principal) {
+        commentService.addComment(id, principal.getName(), content);
+        return "redirect:/recipes/" + id + "#comments";
+    }
+    
+    @PostMapping("/{id}/rate")
+    @PreAuthorize("isAuthenticated()")
+    public String rateRecipe(@PathVariable Long id,
+                           @RequestParam int rating,
+                           Principal principal) {
+        ratingService.rateRecipe(id, principal.getName(), rating);
+        return "redirect:/recipes/" + id + "#rating";
     }
 
     @GetMapping("/my")

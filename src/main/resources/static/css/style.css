@@ -145,3 +145,110 @@ body {
 .comment-content {
     white-space: pre-line;
 }
+
+/* Styles pour la page des évaluations */
+.ratings-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.rating-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rating-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.rating-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #eee;
+}
+
+.rating-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.rating-meta {
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+}
+
+.rating-stars {
+    color: #ffc107;
+    margin: 0.5rem 0;
+}
+
+.rating-comment {
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 1rem 0;
+    margin: 2rem 0 0;
+}
+
+.pagination li {
+    margin: 0 0.25rem;
+}
+
+.pagination a, 
+.pagination span {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.pagination a:hover {
+    background-color: var(--light-gray);
+    border-color: var(--dark-gray);
+}
+
+.pagination .active span {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.pagination .disabled span {
+    color: #aaa;
+    pointer-events: none;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rating-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .rating-meta {
+        align-self: flex-end;
+    }
+}

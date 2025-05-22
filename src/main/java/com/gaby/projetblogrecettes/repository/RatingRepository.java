@@ -30,4 +30,6 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
            "GROUP BY r.recipe " +
            "ORDER BY avgRating DESC")
     Page<Object[]> findTopRatedRecipes(Pageable pageable);
+    
+    Page<Rating> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }

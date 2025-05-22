@@ -64,7 +64,7 @@
                         </div>
                         <div th:each="comment : ${comments}" class="mb-3">
                             <div class="d-flex justify-content-between">
-                                <strong th:text="${comment.author.username}">Utilisateur</strong>
+                                <strong th:text="${comment.user.username}">Utilisateur</strong>
                                 <small class="text-muted" th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}">Date</small>
                             </div>
                             <p class="mb-0" th:text="${comment.content}">Contenu du commentaire</p>

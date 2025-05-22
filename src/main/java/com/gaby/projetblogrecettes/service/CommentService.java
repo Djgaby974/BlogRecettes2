@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @Slf4j
@@ -47,6 +49,10 @@ public class CommentService {
     public Page<Comment> getRecipeComments(Long recipeId, Pageable pageable) {
         return commentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId, pageable);
     }
+    
+    public List<Comment> getCommentsByRecipeId(Long recipeId) {
+        return commentRepository.findByRecipeIdWithUser(recipeId);
+    }
 
     public void deleteComment(Long commentId, String username) {
         Comment comment = commentRepository.findById(commentId)
@@ -57,5 +63,10 @@ public class CommentService {
         }
 
         commentRepository.delete(comment);
+    }
+    
+    @Transactional(readOnly = true)
+    public Page<Comment> getAllComments(Pageable pageable) {
+        return commentRepository.findAllByOrderByCreatedAtDesc(pageable);
     }
 }

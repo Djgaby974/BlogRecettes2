@@ -7,7 +7,9 @@ import com.gaby.projetblogrecettes.repository.RatingRepository;
 import com.gaby.projetblogrecettes.repository.RecipeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,5 +62,10 @@ public class RatingService {
             .stream()
             .map(result -> (Recipe) result[0])
             .collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public Page<Rating> getAllRatings(Pageable pageable) {
+        return ratingRepository.findAllByOrderByCreatedAtDesc(pageable);
     }
 }
