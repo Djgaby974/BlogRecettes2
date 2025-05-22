@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/main :: html(content=~{::content})}">
+<div th:fragment="content">
+    <div class="container">
+        <h1 class="mb-4">Créer une nouvelle recette</h1>
+        
+        <form th:action="@{/recipes}" method="post" th:object="${recipe}" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Titre de la recette</label>
+                        <input type="text" class="form-control" id="title" th:field="*{title}" required>
+                        <div class="invalid-feedback">Le titre est requis</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" th:field="*{description}" rows="3" required></textarea>
+                        <div class="invalid-feedback">La description est requise</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ingredients" class="form-label">Ingrédients</label>
+                        <textarea class="form-control" id="ingredients" th:field="*{ingredients}" rows="5" required
+                                placeholder="- 200g de farine&#10;- 2 œufs&#10;- 100g de sucre"></textarea>
+                        <div class="invalid-feedback">Les ingrédients sont requis</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="instructions" class="form-label">Instructions</label>
+                        <textarea class="form-control" id="instructions" th:field="*{instructions}" rows="5" required
+                                placeholder="1. Préchauffer le four à 180°C&#10;2. Mélanger les ingrédients secs&#10;3. ..."></textarea>
+                        <div class="invalid-feedback">Les instructions sont requises</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="prepTime" class="form-label">Temps de préparation (minutes)</label>
+                        <input type="number" class="form-control" id="prepTime" th:field="*{prepTime}" required min="1">
+                        <div class="invalid-feedback">Le temps de préparation est requis</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cookTime" class="form-label">Temps de cuisson (minutes)</label>
+                        <input type="number" class="form-control" id="cookTime" th:field="*{cookTime}" required min="0">
+                        <div class="invalid-feedback">Le temps de cuisson est requis</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="servingSize" class="form-label">Nombre de portions</label>
+                        <input type="number" class="form-control" id="servingSize" th:field="*{servingSize}" required min="1">
+                        <div class="invalid-feedback">Le nombre de portions est requis</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="difficulty" class="form-label">Difficulté</label>
+                        <select class="form-select" id="difficulty" th:field="*{difficulty}" required>
+                            <option value="">Choisir la difficulté</option>
+                            <option th:each="diff : ${difficulties}"
+                                    th:value="${diff}"
+                                    th:text="${diff}">FACILE</option>
+                        </select>
+                        <div class="invalid-feedback">La difficulté est requise</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Catégorie</label>
+                        <select class="form-select" id="category" th:field="*{category}" required>
+                            <option value="">Choisir une catégorie</option>
+                            <option th:each="cat : ${categories}"
+                                    th:value="${cat.id}"
+                                    th:text="${cat.name}">Dessert</option>
+                        </select>
+                        <div class="invalid-feedback">La catégorie est requise</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="published" th:field="*{published}">
+                            <label class="form-check-label" for="published">
+                                Publier la recette
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a th:href="@{/recipes}" class="btn btn-secondary me-md-2">Annuler</a>
+                <button type="submit" class="btn btn-primary">Créer la recette</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Script pour la validation du formulaire
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+</div>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/main :: html(content=~{::content})}">
+<div th:fragment="content">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1 th:text="${recipe.title}">Titre de la recette</h1>
+                <div class="d-flex align-items-center mb-3">
+                    <span class="badge bg-primary me-2" th:text="${recipe.category.name}">Catégorie</span>
+                    <span class="badge bg-secondary me-2" th:text="${recipe.difficulty}">Difficulté</span>
+                    <span class="text-muted">
+                        <i class="fas fa-clock"></i>
+                        Préparation: <span th:text="${recipe.prepTime}">30</span> min
+                        <span th:if="${recipe.cookTime > 0}">
+                            | Cuisson: <span th:text="${recipe.cookTime}">20</span> min
+                        </span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4 text-end" th:if="${isAuthor}">
+                <a th:href="@{/recipes/{id}/edit(id=${recipe.id})}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <form th:action="@{/recipes/{id}/delete(id=${recipe.id})}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette recette ?')">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Description</h5>
+                        <p class="card-text" th:text="${recipe.description}">Description de la recette</p>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Ingrédients</h5>
+                        <div class="card-text" th:utext="${#strings.replace(#strings.escapeXml(recipe.ingredients), '&#10;', '&lt;br&gt;')}">
+                            Liste des ingrédients
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Instructions</h5>
+                        <div class="card-text" th:utext="${#strings.replace(#strings.escapeXml(recipe.instructions), '&#10;', '&lt;br&gt;')}">
+                            Instructions de préparation
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4" th:if="${recipe.published}">
+                    <div class="card-body">
+                        <h5 class="card-title">Commentaires</h5>
+                        <div th:if="${#lists.isEmpty(comments)}" class="text-muted">
+                            Aucun commentaire pour le moment.
+                        </div>
+                        <div th:each="comment : ${comments}" class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <strong th:text="${comment.author.username}">Utilisateur</strong>
+                                <small class="text-muted" th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}">Date</small>
+                            </div>
+                            <p class="mb-0" th:text="${comment.content}">Contenu du commentaire</p>
+                        </div>
+                        
+                        <form th:if="${isAuthenticated}" th:action="@{/recipes/{id}/comments(id=${recipe.id})}" method="post" class="mt-3">
+                            <div class="mb-3">
+                                <label for="content" class="form-label">Ajouter un commentaire</label>
+                                <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Envoyer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Informations</h5>
+                        <ul class="list-unstyled">
+                            <li>
+                                <i class="fas fa-user"></i>
+                                Par <span th:text="${recipe.author.username}">Auteur</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-calendar"></i>
+                                Créé le <span th:text="${#temporals.format(recipe.createdAt, 'dd/MM/yyyy')}">Date</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-users"></i>
+                                <span th:text="${recipe.servingSize}">4</span> portions
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card mb-4" th:if="${recipe.published}">
+                    <div class="card-body">
+                        <h5 class="card-title">Note moyenne</h5>
+                        <div class="text-center">
+                            <div class="display-4 mb-2" th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">4.5</div>
+                            <div class="text-warning mb-2">
+                                <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <i th:class="${i <= averageRating ? 'fas' : 'far'} + ' fa-star'"></i>
+                                </th:block>
+                            </div>
+                            <small class="text-muted" th:text="${ratingCount + ' évaluation(s)'}">10 évaluations</small>
+                        </div>
+
+                        <form th:if="${isAuthenticated and !hasRated}" th:action="@{/recipes/{id}/rate(id=${recipe.id})}" method="post" class="mt-3">
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Votre note</label>
+                                <select class="form-select" id="rating" name="rating" required>
+                                    <option value="">Choisir une note</option>
+                                    <option value="1">1 - Très mauvais</option>
+                                    <option value="2">2 - Mauvais</option>
+                                    <option value="3">3 - Moyen</option>
+                                    <option value="4">4 - Bon</option>
+                                    <option value="5">5 - Excellent</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Noter</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>
