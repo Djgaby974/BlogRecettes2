@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -89,6 +91,42 @@ public class MealPlanService {
         
         mealPlanRepository.delete(mealPlan);
         log.info("Plan de repas supprimé avec succès - ID: {}", mealPlanId);
+    }
+
+    @Transactional
+    public void deleteMealPlan(Long id, String username) {
+        log.info("Suppression du repas planifié avec l'ID: {} par l'utilisateur: {}", id, username);
+        
+        MealPlan mealPlan = mealPlanRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Repas planifié non trouvé avec l'ID: " + id));
+                
+        if (!mealPlan.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("Vous n'êtes pas autorisé à supprimer ce repas planifié");
+        }
+        
+        mealPlanRepository.delete(mealPlan);
+        log.info("Repas planifié supprimé avec succès - ID: {}", id);
+    }
+    
+    /**
+     * Récupère les repas planifiés pour un utilisateur et une plage de dates
+     */
+    public List<MealPlan> getMealPlansByUserAndDateRange(String username, LocalDate startDate, LocalDate endDate) {
+        log.info("Récupération des repas planifiés pour l'utilisateur {} entre {} et {}", 
+                username, startDate, endDate);
+        return mealPlanRepository.findByUserUsernameAndMealDateBetweenOrderByMealDateAsc(username, startDate, endDate);
+    }
+    
+    /**
+     * Récupère les recettes uniques à partir d'une liste de repas planifiés
+     */
+    public List<Recipe> getUniqueRecipesFromMealPlans(List<MealPlan> mealPlans) {
+        // Utiliser un ensemble pour éliminer les doublons
+        return mealPlans.stream()
+                .map(MealPlan::getRecipe)
+                .distinct()
+                .sorted(Comparator.comparing(Recipe::getTitle))
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

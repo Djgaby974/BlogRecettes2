@@ -30,4 +30,7 @@ public interface MealPlanRepository extends JpaRepository<MealPlan, Long> {
             @Param("recipeId") Long recipeId,
             @Param("date") LocalDate date,
             @Param("mealType") MealPlan.MealType mealType);
+            
+    List<MealPlan> findByUserUsernameAndMealDateBetweenOrderByMealDateAsc(
+            String username, LocalDate startDate, LocalDate endDate);
 }
