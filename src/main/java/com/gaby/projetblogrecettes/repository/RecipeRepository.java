@@ -28,14 +28,16 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     @Query("""
     SELECT r FROM Recipe r
-    WHERE (:title IS NULL OR r.title LIKE %:title%)
+    WHERE (:title IS NULL OR LOWER(r.title) LIKE LOWER(CONCAT('%', :title, '%')))
     AND (:categoryId IS NULL OR r.category.id = :categoryId)
     AND (:difficulty IS NULL OR r.difficulty = :difficulty)
+    AND (:published IS NULL OR r.published = :published)
 """)
     Page<Recipe> searchRecipes(
             @Param("title") String title,
             @Param("categoryId") Long categoryId,
             @Param("difficulty") Difficulty difficulty,
+            @Param("published") Boolean published,
             Pageable pageable
     );
 

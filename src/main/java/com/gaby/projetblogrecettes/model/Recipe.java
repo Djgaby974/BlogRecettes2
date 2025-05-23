@@ -2,7 +2,9 @@ package com.gaby.projetblogrecettes.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
@@ -18,6 +20,9 @@ import java.lang.String;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
 public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +36,7 @@ public class Recipe {
 
     @Column(length = 5000)
     @ElementCollection
+    @Builder.Default
     private List<String> ingredients = new ArrayList<>();
 
     @Column(length = 5000)
@@ -59,6 +65,7 @@ public class Recipe {
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
     @ToString.Exclude
+    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
     @CreationTimestamp
@@ -72,5 +79,6 @@ public class Recipe {
     private boolean published;
 
     @ElementCollection
+    @Builder.Default
     private List<String> imageUrls = new ArrayList<>();
 }

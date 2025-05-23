@@ -3,8 +3,8 @@ package com.gaby.projetblogrecettes.service;
 import com.gaby.projetblogrecettes.model.Role;
 import com.gaby.projetblogrecettes.model.User;
 import com.gaby.projetblogrecettes.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,15 +14,10 @@ import java.util.Optional;
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public User registerUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
@@ -40,6 +35,11 @@ public class UserService {
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+    
+    public User getCurrentUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+    }
 
     public User updateUser(User userDetails, String username) {
         User existingUser = userRepository.findByUsername(username)
@@ -51,8 +51,15 @@ public class UserService {
             throw new RuntimeException("Email déjà utilisé");
         }
 
+        // Mettre à jour les champs modifiables
         existingUser.setEmail(userDetails.getEmail());
+        existingUser.setFirstName(userDetails.getFirstName());
+        existingUser.setLastName(userDetails.getLastName());
         existingUser.setBio(userDetails.getBio());
+        
+        if (userDetails.getAvatar() != null) {
+            existingUser.setAvatar(userDetails.getAvatar());
+        }
         
         return userRepository.save(existingUser);
     }

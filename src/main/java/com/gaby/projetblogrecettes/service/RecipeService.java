@@ -63,7 +63,8 @@ public class RecipeService {
     }
 
     public Page<Recipe> searchRecipes(String keyword, Long userId, Difficulty difficulty, Pageable pageable) {
-        return recipeRepository.searchRecipes(keyword, userId, difficulty, pageable);
+        // Pour la compatibilité, on ne filtre pas par published ici
+        return recipeRepository.searchRecipes(keyword, userId, difficulty, null, pageable);
     }
 
 
@@ -92,9 +93,13 @@ public class RecipeService {
         }
     }
 
-    public Page<Recipe> searchRecipes(String keyword, Long categoryId, String difficulty, boolean published, Pageable pageable) {
+    public Page<Recipe> searchRecipes(String keyword, Long categoryId, String difficulty, Boolean published, Pageable pageable) {
         Difficulty difficultyEnum = parseDifficulty(difficulty);
-        return recipeRepository.searchRecipes(keyword, categoryId, difficultyEnum, pageable);
+        // Si published est null, on ne filtre pas par statut de publication
+        if (published == null) {
+            return recipeRepository.searchRecipes(keyword, categoryId, difficultyEnum, null, pageable);
+        }
+        return recipeRepository.searchRecipes(keyword, categoryId, difficultyEnum, published, pageable);
     }
 
     public Page<Recipe> getRecipesByAuthor(String username, Pageable pageable) {

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/main :: html(content=~{::content})}">
+<head>
+    <title>Planificateur de repas - Semaine</title>
+</head>
+<body>
+<div th:fragment="content" class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mon planning de la semaine</h1>
+        <div>
+            <a th:href="@{/meal-plans(week=${previousWeek})}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-chevron-left"></i> Semaine précédente
+            </a>
+            <a th:href="@{/meal-plans/day}" class="btn btn-outline-secondary me-2">
+                Voir le jour
+            </a>
+            <a th:href="@{/meal-plans(week=${nextWeek})}" class="btn btn-outline-primary">
+                Semaine suivante <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-light">
+            <tr>
+                <th>Repas</th>
+                <th th:each="day : ${#numbers.sequence(1, 7)}">
+                    <div th:with="currentDate=${currentWeekStart.plusDays(day-1)}">
+                        <div th:text="${#temporals.dayOfWeekName(currentDate)}"></div>
+                        <div class="small text-muted" th:text="${#temporals.format(currentDate, 'dd/MM')}"></div>
+                    </div>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="mealType : ${T(com.gaby.projetblogrecettes.model.MealPlan.MealType).values()}">
+                <td class="align-middle fw-bold">
+                    <span th:with="typeName=${#strings.replace(mealType.name().toLowerCase(), '_', ' ')}"
+                          th:text="${#strings.capitalize(typeName)}"></span>
+                </td>
+                <td th:each="day : ${#numbers.sequence(1, 7)}"
+                    th:with="currentDate=${currentWeekStart.plusDays(day-1)}">
+                    <div th:each="meal : ${mealPlans}"
+                         th:if="${meal.mealType == mealType and meal.mealDate.equals(currentDate)}"
+                         class="card mb-2">
+                        <div class="card-body p-2">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title mb-1">
+                                    <a th:href="@{/recipes/{id}(id=${meal.recipe.id})}" th:text="${meal.recipe.title}"></a>
+                                </h6>
+                                <form th:action="@{/meal-plans/{id}/delete(id=${meal.id}, redirectTo='week')}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <p class="card-text small text-muted mb-0" th:if="${meal.notes != null and !meal.notes.isEmpty()}" th:text="${'Note : ' + meal.notes}"></p>
+                        </div>
+                    </div>
+                    <a th:href="@{/recipes(categoryId=0, difficulty='', search='', addToMealPlan=true, mealDate=${#temporals.format(currentDate, 'yyyy-MM-dd')}, mealType=${mealType.name()})}"
+                       class="btn btn-sm btn-outline-secondary w-100"
+                       th:title="'Ajouter une recette'">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

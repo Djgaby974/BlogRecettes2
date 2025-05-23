@@ -82,6 +82,50 @@
             </div>
 
             <div class="col-md-4">
+                <!-- Section d'ajout au planificateur -->
+                <div class="card mb-4" th:if="${addToMealPlan}">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0"><i class="fas fa-calendar-plus me-2"></i>Ajouter au planning</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/meal-plans}" method="post">
+                            <input type="hidden" name="recipeId" th:value="${recipe.id}">
+                            
+                            <div class="mb-3">
+                                <label for="mealDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="mealDate" name="date" 
+                                       th:value="${mealDate ?: T(java.time.LocalDate).now()}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="mealType" class="form-label">Type de repas</label>
+                                <select class="form-select" id="mealType" name="mealType" required>
+                                    <option th:each="type : ${T(com.gaby.projetblogrecettes.model.MealPlan.MealType).values()}"
+                                            th:value="${type}"
+                                            th:text="${#messages.msg('meal.mealType.' + type.name().toLowerCase())}"
+                                            th:selected="${mealType != null && mealType == type.name()}">
+                                    </option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Notes (optionnel)</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="2" 
+                                          placeholder="Ex: Pour 6 personnes, sans sel, etc."></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus-circle me-1"></i> Ajouter au planning
+                                </button>
+                                <a th:href="@{/meal-plans}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-calendar-alt me-1"></i> Voir mon planning
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
                 <div class="card mb-4">
                     <div class="card-body">
                         <h5 class="card-title">Informations</h5>

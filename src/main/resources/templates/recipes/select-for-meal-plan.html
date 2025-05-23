@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/main :: html(content=~{::content})}">
+<head>
+    <title th:text="${pageTitle} + ' - Blog de Recettes'">Sélectionner une recette</title>
+</head>
+<body>
+<div th:fragment="content" class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 th:text="${pageTitle}">Choisir une recette</h1>
+        <a th:href="@{/meal-plans}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour au planning
+        </a>
+    </div>
+
+    <!-- Filtres de recherche -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/recipes}" method="get" class="row g-3">
+                <input type="hidden" name="addToMealPlan" value="true">
+                <input type="hidden" th:if="${mealDate}" th:name="mealDate" th:value="${mealDate}">
+                <input type="hidden" th:if="${mealType}" th:name="mealType" th:value="${mealType}">
+                
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Rechercher une recette..." 
+                           th:value="${param.search}">
+                </div>
+                <div class="col-md-3">
+                    <select name="categoryId" class="form-select">
+                        <option value="">Toutes les catégories</option>
+                        <option th:each="category : ${categories}" 
+                                th:value="${category.id}" 
+                                th:text="${category.name}"
+                                th:selected="${param.categoryId != null and param.categoryId == category.id}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="difficulty" class="form-select">
+                        <option value="">Tous les niveaux</option>
+                        <option th:each="diff : ${difficulties}" 
+                                th:value="${diff}" 
+                                th:text="${#strings.capitalize(#strings.toLowerCase(diff.toString()))}"
+                                th:selected="${param.difficulty != null and param.difficulty == diff}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i> Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des recettes -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" th:each="recipe : ${recipes.content}">
+            <div class="card h-100 recipe-card">
+                <a th:href="@{/recipes/{id}(id=${recipe.id}, addToMealPlan=true, mealDate=${mealDate}, mealType=${mealType})}" class="text-decoration-none">
+                    <img th:if="${recipe.imageUrls != null && !recipe.imageUrls.empty}" 
+                         th:src="${recipe.imageUrls[0]}"
+                         class="card-img-top" alt="Recipe Image"
+                         style="height: 200px; object-fit: cover;">
+                    <img th:unless="${recipe.imageUrls != null && !recipe.imageUrls.empty}"
+                         src="/images/placeholder.jpg"
+                         class="card-img-top" alt="Default Recipe Image"
+                         style="height: 200px; object-fit: cover;">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a th:href="@{/recipes/{id}(id=${recipe.id}, addToMealPlan=true, mealDate=${mealDate}, mealType=${mealType})}" 
+                           class="text-decoration-none text-dark"
+                           th:text="${recipe.title}">
+                            Titre de la recette
+                        </a>
+                    </h5>
+                    <p class="card-text text-muted" th:text="${#strings.abbreviate(recipe.description, 100)}">
+                        Description courte de la recette...
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-secondary" th:text="${recipe.difficulty}">Facile</span>
+                        <span class="text-muted small" th:text="${recipe.prepTime + ' min'}">30 min</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <form th:action="@{/meal-plans}" method="post" class="d-grid">
+                        <input type="hidden" name="recipeId" th:value="${recipe.id}">
+                        <input type="hidden" name="date" th:value="${mealDate ?: T(java.time.LocalDate).now()}">
+                        <input type="hidden" name="mealType" th:value="${mealType ?: 'DINER'}">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-plus-circle me-1"></i> Ajouter au planning
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4" th:if="${recipes.totalPages > 1}">
+        <nav>
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${recipes.first} ? 'disabled'">
+                    <a class="page-link" 
+                       th:href="@{${'?search=' + (param.search != null ? param.search + '&' : '')} + 
+                               'categoryId=' + (param.categoryId != null ? param.categoryId : '') + 
+                               '&difficulty=' + (param.difficulty != null ? param.difficulty : '') + 
+                               '&page=' + (recipes.number - 1) + 
+                               '&addToMealPlan=true' + 
+                               (mealDate ? '&mealDate=' + mealDate : '') + 
+                               (mealType ? '&mealType=' + mealType : '')}">
+                        Précédent
+                    </a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(1, recipes.totalPages)}" 
+                    th:classappend="${i-1 == recipes.number} ? 'active'">
+                    <a class="page-link" 
+                       th:href="@{${'?search=' + (param.search != null ? param.search + '&' : '')} + 
+                               'categoryId=' + (param.categoryId != null ? param.categoryId : '') + 
+                               '&difficulty=' + (param.difficulty != null ? param.difficulty : '') + 
+                               '&page=' + (i-1) + 
+                               '&addToMealPlan=true' + 
+                               (mealDate ? '&mealDate=' + mealDate : '') + 
+                               (mealType ? '&mealType=' + mealType : '')}"
+                       th:text="${i}">
+                        1
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${recipes.last} ? 'disabled'">
+                    <a class="page-link" 
+                       th:href="@{${'?search=' + (param.search != null ? param.search + '&' : '')} + 
+                               'categoryId=' + (param.categoryId != null ? param.categoryId : '') + 
+                               '&difficulty=' + (param.difficulty != null ? param.difficulty : '') + 
+                               '&page=' + (recipes.number + 1) + 
+                               '&addToMealPlan=true' + 
+                               (mealDate ? '&mealDate=' + mealDate : '') + 
+                               (mealType ? '&mealType=' + mealType : '')}">
+                        Suivant
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>

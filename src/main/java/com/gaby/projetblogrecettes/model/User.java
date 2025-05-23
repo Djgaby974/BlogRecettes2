@@ -2,7 +2,9 @@ package com.gaby.projetblogrecettes.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -14,6 +16,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,9 +49,11 @@ public class User {
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     @ToString.Exclude
+    @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @ToString.Exclude
+    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 }
